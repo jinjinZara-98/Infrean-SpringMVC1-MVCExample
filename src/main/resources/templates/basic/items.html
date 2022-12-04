@@ -1,0 +1,68 @@
+<!DOCTYPE HTML>
+<!--타임리프 쓸 수 있게 선언-->
+<html xmlns:th="http://www.thymeleaf.org">
+<!-- -->
+<head>
+  <meta charset="utf-8">
+  <!--템플릿이 랜더링되며 ../css/bootstrap.min.css 절대경로르 갖고옴-->
+  <!--정적은 ../css/bootstrap.min.css -->
+  <!--동적은  /css/bootstrap.min.css-->
+  <!--th:href 기존걸 날리고 괄호안에 있는걸로 덮어버림 -->
+  <link href="../css/bootstrap.min.css"
+        th:href="@{/css/bootstrap.min.css}" rel="stylesheet">
+</head>
+
+<body>
+<div class="container" style="max-width: 600px">
+  <div class="py-5 text-center">
+    <h2>상품 목록</h2>
+  </div>
+
+  <div class="row">
+    <div class="col">
+      <!--th:onclick 클리하면, @{}는 링크걸때  -->
+      <button class="btn btn-primary float-end"
+              onclick="location.href='addForm.html'"
+              th:onclick="|location.href='@{/basic/items/add}'|"
+              type="button">상품 등록</button>
+    </div>
+  </div>
+  <hr class="my-4">
+
+  <div>
+    <table class="table">
+
+      <thead>
+      <tr>
+        <th>ID</th>
+        <th>상품명</th>
+        <th>가격</th>
+        <th>수량</th>
+      </tr>
+      </thead>
+
+      <tbody>
+      <!--th:each는 루프, 모델에 있는 items를 꺼내가지고 item에 넣어줌-->
+      <tr th:each="item : ${items}">
+        <!--동적으로 랜더링이 될때는 a href가 아닌 th:href, 랜더링이 되면 a href태그의 값이 없어지고 치환됨 -->
+        <!--item.id를 갖고와 itemId에 대입, id에 맞게 홈페이지가 여러개 있음-->
+        <!--th:text 데이터 뿌리는거, item.id를 가져와 -->
+        <td><a href="item.html" th:href="@{/basic/items/{itemId} (itemId=${item.id})}"
+             th:text="${item.id}">회원id</a></td>
+
+        <!--@{/basic/items/{itemId} (itemId=${item.id})}는 @{|/basic/items/${item.id}|}와 같음-->
+        <td><a href="item.html" th:href="@{|/basic/items/${item.id}|}"
+             th:text="${item.itemName}">상품명</a></td>
+
+        <td th:text="${item.price}">10000</td>
+
+        <td th:text="${item.quantity}">10</td>
+
+      </tr>
+      </tbody>
+
+    </table>
+  </div>
+</div> <!-- /container -->
+</body>
+</html>

@@ -1,0 +1,142 @@
+<!DOCTYPE HTML>
+<!--타임리프 쓸 수 있게 선언-->
+<html xmlns:th="http://www.thymeleaf.org">
+
+  <head>
+
+    <meta charset="utf-8">
+      <!--템플릿이 랜더링되며 ../css/bootstrap.min.css 절대경로르 갖고옴-->
+      <!--정적은 ../css/bootstrap.min.css -->
+      <!--동적은  /css/bootstrap.min.css-->
+      <!--th:href 기존걸 날리고 괄호안에 있는걸로 덮어버림 -->
+      <link href="../css/bootstrap.min.css"
+            th:href="@{/css/bootstrap.min.css}" rel="stylesheet">
+      <style>
+       .container {
+       max-width: 560px;
+       }
+     </style>
+
+  </head>
+
+  <body>
+
+    <div class="container">
+
+      <div class="py-5 text-center">
+        <h2>상품 수정 폼</h2>
+      </div>
+
+      <!--BasicItemController에서 /basic/items/edit경로 post방식으로 들어오면-->
+      <!--form을 열때는 Get, 저장할 때는 Post -->
+      <!--같은 url이기 때문에 th:action에 /basic/items/add 비워도됨 -->
+      <!--비우게 되면 이 url로 들어왔을때 post방식으로 보냄 -->
+      <form action="item.html" th:action th:object="${item}" method="post">
+
+        <!--id는 수정 못하게 readonly로 해놨음-->
+        <div>
+          <label for="id">상품 ID</label>
+<!--          th:field로 id name value 자동으로 생김-->
+          <input type="text" id="id" th:field="*{id}" class="form-control" readonly>
+        </div>
+
+        <div>
+          <label for="itemName">상품명</label>
+          <input type="text" id="itemName" th:field="*{itemName}" class="form-control">
+        </div>
+
+        <div>
+          <label for="price">가격</label>
+          <input type="text" id="price" th:field="*{price}" class="form-control">
+        </div>
+
+        <div>
+          <label for="quantity">수량</label>
+          <input type="text" id="quantity" th:field="*{quantity}" class="form-control">
+        </div>
+
+        <hr class="my-4">
+
+        <!-- single checkbox -->
+        <div>판매 여부</div>
+        <div>
+          <div class="form-check">
+            <!-- 타임리프 th:field 사용하면 체크박스 체크되면 태그에 checked 넣어줌
+                 아이템에 대한 판매여부 값을 갖고옴, 값에 맞게 체크 언체크를 해주고
+                 사용자가 체크 여부 다시 결정 이후 저장 버튼을 누르면 반영됨-->
+            <input type="checkbox" id="open" th:field="*{open}" class="form-check-input" >
+            <label for="open" class="form-check-label">판매 오픈</label>
+          </div>
+        </div>
+        <br/>
+
+        <!-- multi checkbox -->
+        <!--        상품 등록에서 체크여부에 맞는 값을 Item클래스에 담아 갖고와 뿌려줌, 변경 못하게 disabled-->
+        <!--        th:field에는 체크한 값만 들어있고 th:value는 값이 하나씩 모두 들어있음,-->
+        <!--        th:value에 있는 값들중 th:field에도 있으면 checked를 태그에 넣어줌, 이 로직을 타임리프가 해줌-->
+        <div>
+          <div>등록 지역</div>
+          <div th:each="region : ${regions}" class="form-check form-check-inline">
+
+            <input type="checkbox" th:field="${item.regions}" th:value="${region.key}" class="form-check-input" disabled>
+
+            <label th:for="${#ids.prev('regions')}"
+                   th:text="${region.value}" class="form-check-label">서울</label>
+          </div>
+        </div>
+        <br/>
+
+        <!-- radio button -->
+        <!--                enum의 ItemTypes itemTypes메서드, -->
+        <!--                th:field의 itemType은 Item클래스의 필드를 가져옴, th:object에서 iten을 지정해놔 필드만 지정 가능-->
+        <!--                th:value="${type.name()}"는 enum의 이름을 String으로 반환-->
+        <!--                th:text="${type.description}"은 enum의 description-->
+<!--        라디오버튼은 못뺀다, 무조건 한 개를 골라야 하기 때문에-->
+        <div>
+          <div>상품 종류</div>
+<!--          <div th:each="type : ${T(hello.itemservice.domain.item.ItemType).values()}", -->
+<!--          모델에 안 담고 타임리프에서 바로 자바코드로 접근, 패키지 다 적어주고 .values, 권장방법 아님ㅡ, 모델에 담는게 더 나음-->
+            <div th:each="type : ${itemTypes}"class="form-check form-check-inline">
+
+            <input type="radio" th:field="*{itemType}" th:value="${type.name()}" class="form-check-input">
+            <label th:for="${#ids.prev('itemType')}" th:text="${type.description}" class="form-check-label">
+              BOOK
+            </label>
+          </div>
+        </div>
+        <br/>
+
+        <!-- SELECT -->
+        <div>
+          <div>배송 방식</div>
+          <!--deliveryCode는 Item클래스의 필드-->
+          <select th:field="*{deliveryCode}" class="form-select">
+            <!--아무것도 선택안할때 이 텍스트로 출력하게-->
+            <option value="">==배송 방식 선택==</option>
+            <!--배송 방식 여러 개 이므로 반복문으로-->
+            <option th:each="deliveryCode : ${deliveryCodes}" th:value="${deliveryCode.code}"
+                    th:text="${deliveryCode.displayName}">FAST</option>
+          </select>
+        </div>
+
+        <div class="row">
+
+          <div class="col">
+            <button class="w-100 btn btn-primary btn-lg" type="submit">저장</button>
+          </div>
+
+          <div class="col">
+            <!--수정한 itemid url로 넘겨 그 item상세보기로 가게 -->
+            <button class="w-100 btn btn-secondary btn-lg"
+                    onclick="location.href='item.html'"
+                    th:onclick="|location.href='@{/form/items/{itemId}(itemId=${item.id})}'|" type="button">
+                    취소</button>
+          </div>
+
+        </div>
+
+      </form>
+    </div> <!-- /container -->
+
+  </body>
+</html>

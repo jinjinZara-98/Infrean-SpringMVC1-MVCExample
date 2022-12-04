@@ -1,0 +1,78 @@
+<!DOCTYPE HTML>
+<!--타임리프 쓸 수 있게 선언-->
+<html xmlns:th="http://www.thymeleaf.org">
+
+  <head>
+    <meta charset="utf-8">
+      <!--템플릿이 랜더링되며 ../css/bootstrap.min.css 절대경로르 갖고옴-->
+      <!--정적은 ../css/bootstrap.min.css -->
+      <!--동적은  /css/bootstrap.min.css-->
+      <!--th:href 기존걸 날리고 괄호안에 있는걸로 덮어버림 -->
+      <link href="../css/bootstrap.min.css"
+            th:href="@{/css/bootstrap.min.css}" rel="stylesheet">
+      <style>
+       .container {
+       max-width: 560px;
+       }
+     </style>
+  </head>
+<body>
+  <div class="container">
+
+    <div class="py-5 text-center">
+      <h2>상품 수정 폼</h2>
+    </div>
+
+    <!--BasicItemController에서 /basic/items/edit경로 post방식으로 들어오면-->
+    <!--form을 열때는 Get, 저장할 때는 Post -->
+    <!--같은 url이기 때문에 th:action에 /basic/items/add 비워도됨 -->
+    <!--비우게 되면 이 url로 들어왔을때 post방식으로 보냄 -->
+    <form action="item.html" th:action method="post">
+
+      <!--id는 수정 못하게 readonly로 해놨음-->
+      <div>
+        <label for="id">상품 ID</label>
+        <input type="text" id="id" name="id" class="form-control" value="1"
+               th:value="${item.id}" readonly>
+      </div>
+
+      <div>
+        <label for="itemName">상품명</label>
+        <input type="text" id="itemName" name="itemName" class="form-control" value="상품A"
+               th:value="${item.itemName}">
+      </div>
+
+      <div>
+        <label for="price">가격</label>
+        <input type="text" id="price" name="price" class="form-control"
+               th:value="${item.price}">
+      </div>
+
+      <div>
+        <label for="quantity">수량</label>
+        <input type="text" id="quantity" name="quantity" class="form-control"
+               th:value="${item.quantity}">
+      </div>
+
+      <hr class="my-4">
+
+      <div class="row">
+
+        <div class="col">
+          <button class="w-100 btn btn-primary btn-lg" type="submit">저장</button>
+        </div>
+
+        <div class="col">
+          <!--수정한 itemid url로 넘겨 그 item상세보기로 가게 -->
+          <button class="w-100 btn btn-secondary btn-lg"
+                  onclick="location.href='item.html'"
+                  th:onclick="|location.href='@{/basic/items/{itemId}(itemId=${item.id})}'|" type="button">
+                  취소</button>
+        </div>
+
+      </div>
+
+    </form>
+  </div> <!-- /container -->
+</body>
+</html>

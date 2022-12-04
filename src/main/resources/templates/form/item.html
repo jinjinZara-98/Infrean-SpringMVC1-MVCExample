@@ -1,0 +1,136 @@
+<!DOCTYPE HTML>
+<!--타임리프 쓸 수 있게 선언-->
+<html xmlns:th="http://www.thymeleaf.org">
+
+  <head>
+      <meta charset="utf-8">
+      <!--템플릿이 랜더링되며 ../css/bootstrap.min.css 절대경로르 갖고옴-->
+      <!--정적은 ../css/bootstrap.min.css -->
+      <!--동적은  /css/bootstrap.min.css-->
+      <!--th:href 기존걸 날리고 괄호안에 있는걸로 덮어버림 -->
+      <link href="../css/bootstrap.min.css"
+            th:href="@{/css/bootstrap.min.css}" rel="stylesheet">
+      <style>
+     .container {
+     max-width: 560px;
+     }
+     </style>
+  </head>
+
+  <body>
+    <div class="container">
+
+      <div class="py-5 text-center">
+        <h2>상품 상세</h2>
+      </div>
+
+      <!-- 추가 쿼리 파라미터를 편리하게 조회할수 있도록 param. -->
+      <h2 th:if="${param.status}" th:text="'저장 완료!'"></h2>
+
+      <div>
+        <label for="itemId">상품 ID</label>
+        <!--${}변수표현식 사용해 값 가져오기 -->
+        <input type="text" id="itemId" name="itemId" class="form-control"
+               value="1" th:value="${item.id}" readonly>
+      </div>
+
+      <div>
+        <label for="itemName">상품명</label>
+        <input type="text" id="itemName" name="itemName" class="form-control"
+               value="상품A" th:value="${item.itemName}" readonly>
+      </div>
+
+      <div>
+        <label for="price">가격</label>
+        <input type="text" id="price" name="price" class="form-control"
+               value="10000" th:value="${item.price}" readonly>
+      </div>
+
+      <div>
+        <label for="quantity">수량</label>
+        <input type="text" id="quantity" name="quantity" class="form-control"
+               value="10" th:value="${item.quantity}" readonly>
+      </div>
+
+      <hr class="my-4">
+
+        <!-- single checkbox -->
+        <div>판매 여부</div>
+        <div>
+            <div class="form-check">
+    <!--           물품 상세 페이지에는 th:object="${item}" 쓰지 않아 th:field="*{open}" 못씀
+                   상품 등록을 하고 다음 페이지인 이 상세 페이지가 나올 때 체크박스가 체크되어 있으면 안되므로
+                   disabled 언체크해줌, 타임리프 th:field 사용하면 체크박스 체크되면 태그에 checked 넣어줌-->
+              <input type="checkbox" id="open" th:field="${item.open}" class="form-check-input" disabled>
+              <label for="open" class="form-check-label">판매 오픈</label>
+            </div>
+          </div>
+        <br/>
+
+        <!-- multi checkbox -->
+<!--        상품 등록에서 체크여부에 맞는 값을 Item클래스에 담아 갖고와 뿌려줌, 변경 못하게 disabled-->
+<!--        th:field에는 체크한 값만 들어있고 th:value는 값이 하나씩 모두 들어있음,-->
+<!--        th:value에 있는 값 th:field에 있으면 checked를 태그에 넣어줌, 이 로직을 타임리프가 해줌-->
+<!--        th:value="${region.key}는 regions에서 region 하나씩 가져와 키값을 가져오고-->
+        <div>
+            <div>등록 지역</div>
+            <div th:each="region : ${regions}" class="form-check form-check-inline">
+                <input type="checkbox" th:field="${item.regions}" th:value="${region.key}" class="form-check-input" disabled>
+                <label th:for="${#ids.prev('regions')}"
+                       th:text="${region.value}" class="form-check-label">서울</label>
+            </div>
+        </div>
+        <br/>
+
+        <!-- radio button -->
+<!--        th:field와 th:value 같으면 checked해줌-->
+        <div>
+            <div>상품 종류</div>
+            <div th:each="type : ${itemTypes}" class="form-check form-check-inline">
+                <input type="radio" th:field="${item.itemType}" th:value="${type.name()}" class="form-check-input" disabled>
+                <label th:for="${#ids.prev('itemType')}" th:text="${type.description}" class="form-check-label">
+                    BOOK
+                </label>
+            </div>
+        </div>
+
+      <!-- SELECT -->
+      <div>
+        <div>배송 방식</div>
+        <!--deliveryCode는 Item클래스의 필드, 사용자가 선택한 배송방식이 출력되는-->
+        <!--상품 상세화면이므로 다시 선택 못하게 disabled-->
+<!--        th:field="${item.deleveryCode}"와  th:value="${deliveryCode.code}" 비교-->
+<!--        값이 같은게 있다면 selected="selected" 넣어줌-->
+        <select th:field="${item.deliveryCode}" class="form-select" disabled>
+            <!--아무것도 선택안할때 이 텍스트로 출력하게-->
+            <option value="">==배송 방식 선택==</option>
+            <!--배송 방식 여러 개 이므로 반복문으로-->
+            <option th:each="deliveryCode : ${deliveryCodes}" th:value="${deliveryCode.code}"
+                    th:text="${deliveryCode.displayName}">FAST</option>
+        </select>
+      </div>
+
+      <hr class="my-4">
+
+      <div class="row">
+
+        <div class="col">
+          <!--itemId에 item.id값을 치환해 넣어 경로 표현 -->
+          <button class="w-100 btn btn-primary btn-lg"
+                  onclick="location.href='editForm.html'"
+                  th:onclick="|location.href='@{/form/items/{itemId}/edit(itemId=${item.id})}'|" type="button">
+                  상품 수정</button>
+        </div>
+
+        <div class="col">
+          <button class="w-100 btn btn-secondary btn-lg"
+                  onclick="location.href='items.html'"
+                  th:onclick="|location.href='@{/form/items}'|" type="button">
+                  목록으로</button>
+        </div>
+
+      </div>
+
+    </div> <!-- /container -->
+  </body>
+</html>
